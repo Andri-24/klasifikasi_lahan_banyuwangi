@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web GIS Klasifikasi Tutupan Lahan Banyuwangi</title>
+    
+    <!-- CSS Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        .info-panel {
+            padding: 8px 12px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <!-- JS Leaflet.js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Inisialisasi Peta (Koordinat Pusat Banyuwangi)
+        var map = L.map('map').setView([-8.2192, 114.3692], 12);
+
+        // 2. Tambahkan Peta Dasar (Esri World Imagery / Satelit)
+        var esriSatelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }).addTo(map);
+
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        });
+
+        // 3. Objek Penyimpan Layer
+        var overlayLayers = {};
+
+        // Fungsi Pembantu untuk Memuat File GeoJSON dan Mewarnai
+        function loadGeoJSON(filePath, layerName, color, fillColor) {
+            return fetch(filePath)
+                .then(response => response.json())
+                .then(data => {
+                    var layer = L.geoJSON(data, {
+                        style: {
+                            color: color,
+                            weight: 1,
+                            fillColor: fillColor,
+                            fillOpacity: 0.6
+                        },
+                        onEachFeature: function (feature, layer) {
+                            layer.bindPopup('<b>Kelas Lahan:</b> ' + layerName);
+                        }
+                    });
+                    overlayLayers[layerName] = layer;
+                    return layer;
+                })
+                .catch(err => console.error('Gagal memuat file ' + filePath, err));
+        }
+
+        // 4. Muat Semua File GeoJSON Hasil Klasifikasi
+        Promise.all([
+            loadGeoJSON('data/hasil_pertanian.geojson', '🌾 Sawah', '#a2ff1f', '#a2ff1f'),
+            loadGeoJSON('data/hasil_hutan.geojson', '🌲 Perkebunan/Hutan', '#27ae60', '#27ae60'),
+            loadGeoJSON('data/hasil_bangunan.geojson', '🏠 Permukiman/Bangunan', '#e7ff1f', '#e7ff1f'),
+            loadGeoJSON('data/hasil_perairan.geojson', '💧 Perairan/Sungai', '#3498db', '#3498db'),
+            loadGeoJSON('data/hasil_mangrove.geojson', '🐟 Mangrove', '#1abc9c', '#1abc9c')
+        ]).then(() => {
+            // 5. Tambahkan Layer Control Checkbox di Pojok Kanan Atas
+            var baseMaps = {
+                "🛰️ Citra Satelit (Esri)": esriSatelit,
+                "🗺️ OpenStreetMap": osm
+            };
+
+            L.control.layers(baseMaps, overlayLayers, { collapsed: false }).addTo(map);
+
+            // Opsional: Aktifkan beberapa layer awal secara otomatis
+            if (overlayLayers['🌾 Sawah']) overlayLayers['🌾 Sawah'].addTo(map);
+            if (overlayLayers['🌲 Perkebunan/Hutan']) overlayLayers['🌲 Perkebunan/Hutan'].addTo(map);
+        });
+    </script>
+</body>
+</html>
