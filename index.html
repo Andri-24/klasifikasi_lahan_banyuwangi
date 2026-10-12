@@ -75,11 +75,11 @@
 
         // 4. Muat Semua File GeoJSON Hasil Klasifikasi
         Promise.all([
-            loadGeoJSON('data/hasil_pertanian.geojson', '🌾 Sawah', '#a2ff1f', '#a2ff1f'),
-            loadGeoJSON('data/hasil_hutan.geojson', '🌲 Perkebunan/Hutan', '#27ae60', '#27ae60'),
-            loadGeoJSON('data/hasil_bangunan.geojson', '🏠 Permukiman/Bangunan', '#e7ff1f', '#e7ff1f'),
-            loadGeoJSON('data/hasil_perairan.geojson', '💧 Perairan/Sungai', '#3498db', '#3498db'),
-            loadGeoJSON('data/hasil_mangrove.geojson', '🐟 Mangrove', '#1abc9c', '#1abc9c')
+            loadGeoJSON('data/hasil_pertanian.geojson', 'Sawah', '#a2ff1f', '#a2ff1f'),
+            loadGeoJSON('data/hasil_hutan.geojson', 'Perkebunan/Hutan', '#27ae60', '#27ae60'),
+            loadGeoJSON('data/hasil_bangunan.geojson', 'Permukiman/Bangunan', '#e7ff1f', '#e7ff1f'),
+            loadGeoJSON('data/hasil_perairan.geojson', 'Perairan/Sungai', '#3498db', '#3498db'),
+            loadGeoJSON('data/hasil_mangrove.geojson', 'Mangrove', '#1abc9c', '#1abc9c')
         ]).then(() => {
             // 5. Tambahkan Layer Control Checkbox di Pojok Kanan Atas
             var baseMaps = {
@@ -90,8 +90,8 @@
             L.control.layers(baseMaps, overlayLayers, { collapsed: false }).addTo(map);
 
             // Opsional: Aktifkan beberapa layer awal secara otomatis
-            if (overlayLayers['🌾 Sawah']) overlayLayers['🌾 Sawah'].addTo(map);
-            if (overlayLayers['🌲 Perkebunan/Hutan']) overlayLayers['🌲 Perkebunan/Hutan'].addTo(map);
+            if (overlayLayers['Sawah']) overlayLayers['Sawah'].addTo(map);
+            if (overlayLayers['Permukiman/Bangunan']) overlayLayers['Permukiman/Bangunan'].addTo(map);
         });
     </script>
 </body>
